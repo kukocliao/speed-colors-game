@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>著色快手 Speed Colors - 直橫雙向極速記憶填色</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-3 sm:p-6 select-none">
+
+    <!-- 頂部 Header & 狀態 HUD -->
+    <header class="w-full max-w-4xl glass-panel rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 mb-3 sm:mb-4 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-lg sm:text-2xl shadow-lg">
+                    🖍️
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-orange-400 to-amber-500">
+                        著色快手
+                    </h1>
+                    <p id="pattern-title" class="text-[10px] sm:text-xs text-slate-400 font-medium">數位互動 6 分區極速記憶</p>
+                </div>
+            </div>
+            <div id="game-state-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700/50 text-slate-300 border border-slate-600/50 sm:hidden">
+                ⏸️ 準備
+            </div>
+        </div>
+
+        <!-- 時間控制與分數選單 -->
+        <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2 w-full sm:w-auto">
+            <div class="flex items-center gap-1 bg-slate-900/60 px-2 py-1 rounded-xl border border-slate-700/50 text-xs">
+                <span class="font-bold text-amber-300">🧠 記憶:</span>
+                <select id="memory-time-select" class="bg-transparent text-amber-300 font-bold outline-none cursor-pointer">
+                    <option value="5" class="bg-slate-900 text-slate-200">5s</option>
+                    <option value="10" selected class="bg-slate-900 text-slate-200">10s</option>
+                    <option value="15" class="bg-slate-900 text-slate-200">15s</option>
+                    <option value="20" class="bg-slate-900 text-slate-200">20s</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-1 bg-slate-900/60 px-2 py-1 rounded-xl border border-slate-700/50 text-xs">
+                <span class="font-bold text-emerald-300">🎨 著色:</span>
+                <select id="color-time-select" class="bg-transparent text-emerald-300 font-bold outline-none cursor-pointer">
+                    <option value="15" class="bg-slate-900 text-slate-200">15s</option>
+                    <option value="30" selected class="bg-slate-900 text-slate-200">30s</option>
+                    <option value="45" class="bg-slate-900 text-slate-200">45s</option>
+                    <option value="60" class="bg-slate-900 text-slate-200">60s</option>
+                </select>
+            </div>
+
+            <div id="game-state-badge-desktop" class="hidden sm:block px-3 py-1 rounded-full text-xs font-bold bg-slate-700/50 text-slate-300 border border-slate-600/50">
+                ⏸️ 準備中
+            </div>
+
+            <div class="flex gap-1.5">
+                <div class="bg-slate-900/60 px-2.5 py-0.5 rounded-xl border border-slate-700/50 text-center min-w-[50px]">
+                    <div class="text-[8px] text-slate-400 font-bold uppercase">得分</div>
+                    <div id="score-display" class="text-sm sm:text-base font-black text-amber-400">0</div>
+                </div>
+                <div class="bg-slate-900/60 px-2.5 py-0.5 rounded-xl border border-slate-700/50 text-center min-w-[50px]">
+                    <div class="text-[8px] text-slate-400 font-bold uppercase">連勝</div>
+                    <div id="streak-display" class="text-sm sm:text-base font-black text-emerald-400">0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主遊戲區域 (直向垂直／橫向雙欄 layout) -->
+    <main class="main-game-container w-full max-w-4xl flex flex-col items-center gap-3 sm:gap-5 flex-1 justify-center">
+        
+        <!-- 左欄 (橫向時專置 3D 卡片與計時條) -->
+        <div class="game-left-col flex flex-col items-center gap-2">
+            <!-- 計時條 -->
+            <div class="w-[260px] xs:w-[290px] sm:w-[320px] bg-slate-900/80 rounded-full h-3 sm:h-4 p-0.5 border border-slate-700/50 overflow-hidden relative shadow-inner">
+                <div id="timer-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-300 w-full"></div>
+                <span id="timer-text" class="absolute inset-0 flex items-center justify-center text-[9px] sm:text-[10px] font-black text-white drop-shadow">0 秒</span>
+            </div>
+
+            <!-- 3D 翻轉卡片 -->
+            <div class="card-box perspective-1000 w-[260px] h-[340px] xs:w-[280px] xs:h-[370px] sm:w-[320px] sm:h-[420px] relative my-1">
+                <div id="card-inner" class="card-inner w-full h-full preserve-3d relative rounded-2xl sm:rounded-3xl shadow-2xl">
+                    
+                    <!-- 正面：解答記憶面 (Side A) -->
+                    <div class="card-front absolute inset-0 w-full h-full backface-hidden glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col items-center justify-center border-2 border-amber-500/30">
+                        <div class="absolute top-2 left-3 text-[10px] sm:text-xs font-bold text-amber-400/80 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 z-10">
+                            記憶解答面 (Side A)
+                        </div>
+                        <div id="memorize-svg-container" class="w-full h-full flex items-center justify-center p-1"></div>
+                    </div>
+
+                    <!-- 背面：線稿著色面 (Side B) -->
+                    <div class="card-back absolute inset-0 w-full h-full backface-hidden rotate-y-180 glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col items-center justify-center border-2 border-emerald-500/30">
+                        <div class="absolute top-2 left-3 text-[10px] sm:text-xs font-bold text-emerald-400/80 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 z-10">
+                            線稿著色面 (Side B)
+                        </div>
+                        <div id="color-svg-container" class="w-full h-full flex items-center justify-center p-1"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 右欄 (橫向時專置調色盤與按鈕) -->
+        <div class="game-right-col w-full max-w-md flex flex-col items-center gap-3">
+            <div class="w-full glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col items-center gap-2.5">
+                <div class="text-[11px] sm:text-xs text-slate-400 font-bold tracking-wider text-center">
+                    🎨 點擊調色盤填色（直向/橫向均支援觸按）
+                </div>
+                
+                <div id="palette-container" class="flex flex-wrap justify-center gap-2 sm:gap-3 w-full"></div>
+
+                <div class="flex items-center justify-center gap-2.5 w-full mt-1">
+                    <button id="start-btn" class="w-full max-w-xs py-2.5 sm:py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-extrabold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95">
+                        🚀 開始遊戲
+                    </button>
+                    <button id="reset-color-btn" class="hidden px-4 py-2 sm:py-3 bg-slate-700/60 hover:bg-slate-600 text-slate-200 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-slate-600 active:scale-95">
+                        🧹 清空
+                    </button>
+                    <button id="submit-btn" class="hidden px-5 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95">
+                        ✅ 完成著色
+                    </button>
+                </div>
+            </div>
+
+            <!-- 筆蓋洗牌變體勾選區 -->
+            <div class="flex items-center gap-2 text-xs text-slate-400 bg-slate-900/40 px-3 py-1 rounded-xl border border-slate-800">
+                <input type="checkbox" id="shuffle-cap-toggle" class="w-3.5 h-3.5 accent-amber-500 cursor-pointer">
+                <label for="shuffle-cap-toggle" class="cursor-pointer font-medium select-none">
+                    🔀 筆蓋洗牌混淆變體
+                </label>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 結果 Modal -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
+        <div class="glass-panel w-full max-w-xs sm:max-w-lg rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-col items-center text-center border-2 border-slate-700 shadow-2xl">
+            <h2 id="modal-title" class="text-xl sm:text-3xl font-black text-amber-400 mb-1">🎉 完成挑戰！</h2>
+            <div id="modal-score-text" class="text-2xl sm:text-4xl font-black text-emerald-400 mb-1">+0 分</div>
+            <div id="modal-accuracy-text" class="text-xs sm:text-sm font-bold text-slate-400 mb-3 sm:mb-4">對比驗證正確率</div>
+
+            <div class="grid grid-cols-2 gap-2 sm:gap-4 w-full mb-4">
+                <div class="bg-slate-900/60 p-2 rounded-xl sm:rounded-2xl border border-slate-800 flex flex-col items-center">
+                    <div class="text-[9px] sm:text-xs text-amber-400 font-bold mb-1">標準解答 (Side A)</div>
+                    <div id="solution-svg-container" class="w-24 h-32 sm:w-36 sm:h-48 flex items-center justify-center"></div>
+                </div>
+                <div class="bg-slate-900/60 p-2 rounded-xl sm:rounded-2xl border border-slate-800 flex flex-col items-center">
+                    <div class="text-[9px] sm:text-xs text-emerald-400 font-bold mb-1">您的著色成果 (Side B)</div>
+                    <div id="user-svg-container" class="w-24 h-32 sm:w-36 sm:h-48 flex items-center justify-center"></div>
+                </div>
+            </div>
+
+            <button id="modal-next-btn" class="w-full py-2.5 sm:py-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-black text-base sm:text-xl rounded-xl sm:rounded-2xl shadow-xl active:scale-98">
+                下一關 ➡️
+            </button>
+        </div>
+    </div>
+
+    <!-- 腳本 -->
+    <script src="patterns.js"></script>
+    <script src="audio.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

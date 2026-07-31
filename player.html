@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>著色快手 Speed Colors - 加入遊戲</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="flex flex-col items-center min-h-screen p-3 select-none">
+
+<header class="w-full max-w-md glass-panel rounded-2xl p-3 mb-3 text-center">
+    <h1 class="text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-orange-400 to-amber-500">🖍️ 著色快手</h1>
+    <p id="my-status" class="text-[10px] text-slate-400 font-medium mt-0.5"></p>
+</header>
+
+<!-- 加入畫面 -->
+<div id="gate" class="flex-grow flex flex-col items-center justify-center gap-4 p-6 w-full max-w-md">
+    <p class="text-base font-bold text-slate-300">輸入你的名字加入遊戲</p>
+    <input id="name-input" maxlength="10" placeholder="你的名字" class="glass-panel rounded-xl px-4 py-3 text-center text-lg font-bold w-64 outline-none text-white placeholder:text-slate-500">
+    <button id="join-btn" class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-extrabold px-8 py-3 rounded-xl shadow-xl active:scale-95 text-base">加入遊戲</button>
+</div>
+
+<!-- 遊戲畫面 -->
+<main id="game-view" class="hidden flex-grow flex flex-col items-center gap-3 w-full max-w-md">
+    <div id="phase-banner" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-900/60 text-amber-300 border border-slate-700/50 text-center">
+        等待主控端開始遊戲…
+    </div>
+
+    <div class="flex items-center gap-4 text-xs font-bold">
+        <div class="bg-slate-900/60 px-2.5 py-0.5 rounded-xl border border-slate-700/50 text-center min-w-[50px]">
+            <div class="text-[8px] text-slate-400 uppercase">得分</div>
+            <div id="my-score" class="text-sm font-black text-amber-400">0</div>
+        </div>
+        <div class="bg-slate-900/60 px-2.5 py-0.5 rounded-xl border border-slate-700/50 text-center min-w-[50px]">
+            <div class="text-[8px] text-slate-400 uppercase">連勝</div>
+            <div id="my-streak" class="text-sm font-black text-emerald-400">0</div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-xs flex flex-col items-center gap-1">
+        <div class="w-full bg-slate-900/80 rounded-full h-3 p-0.5 border border-slate-700/50 overflow-hidden relative">
+            <div id="timer-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-100" style="width:0%"></div>
+        </div>
+        <div id="timer-text" class="text-slate-300 font-mono font-bold text-xs">0 秒</div>
+    </div>
+
+    <div class="w-full max-w-xs aspect-[3/4] glass-panel rounded-2xl p-2 flex items-center justify-center relative">
+        <div id="card-container" class="w-full h-full flex items-center justify-center"></div>
+    </div>
+
+    <div id="palette-container" class="hidden grid grid-cols-6 gap-1.5 sm:gap-2 w-full max-w-xs"></div>
+
+    <button id="submit-btn" class="hidden w-full max-w-xs py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl shadow-xl active:scale-95">✅ 完成著色</button>
+
+    <!-- 本輪結果 -->
+    <div id="round-result" class="hidden glass-panel rounded-2xl p-5 text-center w-full max-w-xs">
+        <p id="result-title" class="text-xl font-black mb-1 text-amber-300"></p>
+        <p id="result-score" class="text-base font-mono font-bold text-emerald-400 mb-1"></p>
+        <p id="result-accuracy" class="text-xs text-slate-400"></p>
+        <p id="result-rank" class="text-xs text-slate-400 font-bold mt-1"></p>
+    </div>
+
+    <div class="glass-panel rounded-2xl p-3 w-full max-w-xs">
+        <h2 class="font-black text-xs text-amber-300 mb-2">🏆 即時排行榜</h2>
+        <div id="leaderboard" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
+            <p class="text-xs text-slate-500 text-center py-3">尚無玩家加入</p>
+        </div>
+    </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="patterns.js"></script>
+<script src="audio.js"></script>
+<script src="sync.js"></script>
+<script>
+const gateEl = document.getElementById('gate');
+const gameViewEl = document.getElementById('game-view');
+const nameInput = document.getElementById('name-input');
+const joinBtn = document.getElementById('join-btn');
+const myStatusEl = document.getElementById('my-status');
+const phaseBanner = document.getElementById('phase-banner');
+const myScoreEl = document.getElementById('my-score');
+const myStreakEl = document.getElementById('my-streak');
+const cardContainer = document.getElementById('card-container');
+const paletteContainer = document.getElementById('palette-container');
+const submitBtn = document.getElementById('submit-btn');
+const timerBar = document.getElementById('timer-bar');
+const timerText = document.getElementById('timer-text');
+const roundResultEl = document.getElementById('round-result');
+const resultTitleEl = document.getElementById('result-title');
+const resultScoreEl = document.getElementById('result-score');
+const resultAccuracyEl = document.getElementById('result-accuracy');
+const resultRankEl = document.getElementById('result-rank');
+const leaderboardEl = document.getElementById('leaderboard');
+
+let myName = localStorage.getItem('speed-colors-name') || '';
+nameInput.value = myName;
+
+let myScore = 0;
+let myStreak = 0;
+let renderedRoundIndex = 0;
+let hasSubmitted = false;
+let localTimer = null;
+let currentRound = null;
+let currentPattern = null;
+let userColorMap = {};
+let selectedColor = COLOR_PALETTE[0].hex;
+
+joinBtn.addEventListener('click', join);
+nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') join(); });
+submitBtn.addEventListener('click', () => { if (currentRound && !hasSubmitted) submitResult(); });
+
+window.addEventListener('keydown', (e) => {
+    if (gameViewEl.classList.contains('hidden')) return;
+    const keyNum = parseInt(e.key);
+    if (keyNum >= 1 && keyNum <= COLOR_PALETTE.length) selectColor(COLOR_PALETTE[keyNum - 1].hex);
+});
+
+function join() {
+    const name = nameInput.value.trim();
+    if (!name) return alert('請輸入名字');
+    myName = name;
+    localStorage.setItem('speed-colors-name', name);
+    myScore = 0; myStreak = 0;
+    writePlayer(myName, { name: myName, score: 0, streak: 0, joinedAt: Date.now(), lastRound: 0 });
+
+    gateEl.classList.add('hidden');
+    gameViewEl.classList.remove('hidden');
+    myStatusEl.textContent = LOCAL_MODE ? `${myName}・本機測試模式（同機分頁互通）` : `${myName}・已連線`;
+
+    onRoom(handleRoomChange);
+    onPlayers((players) => {
+        const me = players[myName];
+        if (me) { myScore = me.score; myStreak = me.streak; myScoreEl.textContent = me.score; myStreakEl.textContent = me.streak; }
+        renderLeaderboard(players);
+    });
+}
+
+function renderLeaderboard(players) {
+    const list = Object.values(players || {}).sort((a, b) => b.score - a.score);
+    if (list.length === 0) {
+        leaderboardEl.innerHTML = '<p class="text-xs text-slate-500 text-center py-3">尚無玩家加入</p>';
+        return;
+    }
+    leaderboardEl.innerHTML = list.map((p, i) => `
+        <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs ${p.name === myName ? 'border-amber-400/60 bg-amber-400/10' : 'border-slate-700/50 bg-slate-900/40'}">
+            <span class="font-bold text-slate-200">${i + 1}. ${p.name}${p.streak >= 2 ? ' 🔥' : ''}</span>
+            <span class="font-mono font-black text-emerald-400">${String(p.score).padStart(4, '0')}</span>
+        </div>
+    `).join('');
+}
+
+function handleRoomChange(room) {
+    const round = room.round;
+    if (!round) { phaseBanner.textContent = '等待主控端開始遊戲…'; return; }
+
+    if (round.index !== renderedRoundIndex) {
+        renderedRoundIndex = round.index;
+        hasSubmitted = false;
+        userColorMap = {};
+        selectedColor = COLOR_PALETTE[0].hex;
+        currentPattern = cardById(round.patternId);
+        roundResultEl.classList.add('hidden');
+    }
+    currentRound = round;
+
+    clearInterval(localTimer);
+    if (room.status === 'memorize') {
+        phaseBanner.textContent = `記憶階段：記住這張圖案的顏色！`;
+        paletteContainer.classList.add('hidden');
+        submitBtn.classList.add('hidden');
+        cardContainer.innerHTML = currentPattern.getSvg(currentPattern.solution);
+        runLocalCountdown(round.phaseStartAt, round.memTime, () => {});
+    } else if (room.status === 'color') {
+        phaseBanner.textContent = '著色階段：點調色盤再點區塊填色！';
+        renderPalette();
+        paletteContainer.classList.remove('hidden');
+        submitBtn.classList.remove('hidden');
+        renderColorCard();
+        runLocalCountdown(round.phaseStartAt, round.colorTime, () => {
+            if (!hasSubmitted) submitResult();
+        });
+    } else if (room.status === 'ended') {
+        clearInterval(localTimer);
+        phaseBanner.textContent = '本關結束，等待主控端開下一關…';
+        if (!hasSubmitted) submitResult();
+    } else if (room.status === 'finished') {
+        clearInterval(localTimer);
+        if (!hasSubmitted) submitResult();
+        phaseBanner.textContent = '🏆 遊戲結束！最終成績如下（見下方排行榜）';
+        paletteContainer.classList.add('hidden');
+        submitBtn.classList.add('hidden');
+    }
+}
+
+function cardById(id) { return GAME_PATTERNS.find((p) => p.id === id); }
+
+function renderPalette() {
+    paletteContainer.innerHTML = COLOR_PALETTE.map((color, idx) => `
+        <button class="palette-btn relative w-full aspect-square rounded-xl flex items-center justify-center font-bold text-white shadow-md border-2 border-white/20 ${selectedColor === color.hex ? 'ring-4 ring-amber-400 scale-105' : ''}"
+                style="background-color: ${color.hex}" data-hex="${color.hex}">
+            <span class="absolute top-0.5 left-1.5 text-[9px] opacity-75 font-mono">${idx + 1}</span>
+        </button>
+    `).join('');
+    paletteContainer.querySelectorAll('.palette-btn').forEach((btn) => {
+        const handle = (e) => { if (e) e.preventDefault(); soundManager.play('select'); selectColor(btn.getAttribute('data-hex')); };
+        btn.addEventListener('pointerdown', handle);
+        btn.addEventListener('click', handle);
+    });
+}
+
+function selectColor(hex) { selectedColor = hex; renderPalette(); }
+
+function renderColorCard() {
+    cardContainer.innerHTML = currentPattern.getSvg(userColorMap);
+    cardContainer.querySelectorAll('.region-path').forEach((path) => {
+        const handleFill = (e) => {
+            if (e) e.preventDefault();
+            if (hasSubmitted) return;
+            const regionId = e.currentTarget.getAttribute('data-region');
+            if (regionId && userColorMap[regionId] !== selectedColor) {
+                userColorMap[regionId] = selectedColor;
+                soundManager.play('fill');
+                renderColorCard();
+            }
+        };
+        path.addEventListener('pointerdown', handleFill);
+        path.addEventListener('click', handleFill);
+    });
+}
+
+function runLocalCountdown(phaseStartAt, duration, onExpire) {
+    function tick() {
+        const elapsed = (Date.now() - phaseStartAt) / 1000;
+        const left = Math.max(0, duration - elapsed);
+        const pct = duration > 0 ? Math.max(0, Math.min(100, (left / duration) * 100)) : 0;
+        timerBar.style.width = pct + '%';
+        timerText.textContent = Math.ceil(left) + ' 秒';
+        if (left <= 0) { clearInterval(localTimer); onExpire(); }
+    }
+    tick();
+    localTimer = setInterval(tick, 200);
+}
+
+function submitResult() {
+    hasSubmitted = true;
+    paletteContainer.classList.add('hidden');
+    submitBtn.classList.add('hidden');
+
+    const solution = currentPattern.solution;
+    const total = Object.keys(solution).length;
+    let correct = 0, wrong = 0;
+    Object.keys(solution).forEach((id) => {
+        const userColor = userColorMap[id];
+        if (!userColor) return;
+        if (userColor.toUpperCase() === solution[id].toUpperCase()) correct++; else wrong++;
+    });
+
+    const elapsed = (Date.now() - currentRound.phaseStartAt) / 1000;
+    const timeLeft = Math.max(0, currentRound.colorTime - elapsed);
+    const roundScore = Math.max(0, (correct * 100) - (wrong * 30) + (correct === total ? 200 : 0) + (correct > 0 ? Math.round(timeLeft) * 15 : 0));
+
+    myScore += roundScore;
+    myStreak = correct === total ? myStreak + 1 : 0;
+    soundManager.play(correct === total ? 'win' : 'wrong');
+    writePlayer(myName, { name: myName, score: myScore, streak: myStreak, joinedAt: Date.now(), lastRound: currentRound.index });
+    myScoreEl.textContent = myScore;
+    myStreakEl.textContent = myStreak;
+
+    cardContainer.innerHTML = currentPattern.getSvg(userColorMap);
+    resultTitleEl.textContent = correct === total ? '🎉 完美著色！' : (correct > 0 ? '👍 答對再接再厲' : '❌ 答錯再接再厲');
+    resultScoreEl.textContent = `+${roundScore} 分`;
+    resultAccuracyEl.textContent = `正確率：${Math.round((correct / total) * 100)}%（${correct}/${total} 對，${wrong} 錯）`;
+    roundResultEl.classList.remove('hidden');
+    updateRank();
+}
+
+function updateRank() {
+    const all = Object.values(playersState || {}).sort((a, b) => b.score - a.score);
+    const myIdx = all.findIndex((p) => p.name === myName);
+    if (myIdx >= 0) resultRankEl.textContent = `目前排名：第 ${myIdx + 1} 名（共 ${all.length} 人）`;
+}
+</script>
+</body>
+</html>
