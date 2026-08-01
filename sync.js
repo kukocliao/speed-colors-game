@@ -48,6 +48,7 @@ function writePlayer(name, data) {
 }
 
 function resetRoom() {
+    const previousPlayers = playersState;
     roomState = { status: 'idle', round: null };
     playersState = {};
     if (LOCAL_MODE) {
@@ -55,7 +56,9 @@ function resetRoom() {
         bc.postMessage({ kind: 'players_reset' });
         emitRoom(); emitPlayers();
     } else {
-        refRoom().set({ status: 'idle' });
-        refPlayers().remove();
+        // set()/remove() 在房間或 players 這種父節點需要該節點本身的寫入權限（規則沒開放）；
+        // update() 是逐一評估每個子路徑的規則，且各玩家名稱底下本來就有開放寫入，所以改用這兩種方式
+        refRoom().update({ status: 'idle', round: null });
+        Object.keys(previousPlayers).forEach((name) => refPlayer(name).remove());
     }
 }
