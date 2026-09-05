@@ -22,9 +22,16 @@
             <p class="text-[10px] sm:text-xs text-slate-400 font-bold">玩家加入網址（分享給大家）：</p>
             <p id="join-url" class="text-[10px] sm:text-xs font-mono text-emerald-400 font-bold break-all"></p>
         </div>
-        <img id="join-qr" class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-slate-600/50 shadow-sm bg-white p-1" alt="掃描加入玩家端 QR Code">
+        <img id="join-qr" class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-slate-600/50 shadow-sm bg-white p-1 cursor-pointer" alt="掃描加入玩家端 QR Code" title="點擊放大 QR Code">
     </div>
 </header>
+
+<!-- ponytail: 用原生 <dialog>，不引任何 modal 套件 -->
+<dialog id="qr-modal" class="rounded-2xl p-5 bg-white text-center backdrop:bg-black/70">
+    <img id="qr-modal-img" class="w-[70vmin] h-[70vmin] max-w-[420px] max-h-[420px]" alt="放大的玩家端 QR Code">
+    <p id="qr-modal-url" class="mt-2 text-xs font-mono text-slate-700 break-all"></p>
+    <p class="mt-1 text-xs text-slate-400">點任一處關閉</p>
+</dialog>
 
 <main class="w-full max-w-5xl flex flex-col lg:flex-row gap-3 sm:gap-4">
     <div class="flex-grow glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col items-center gap-3">
@@ -116,7 +123,13 @@ modeBadge.textContent = LOCAL_MODE
     : '已連線 Firebase，可跨裝置遊玩';
 const joinUrl = new URL('player.html', location.href).href;
 joinUrlEl.textContent = joinUrl;
-document.getElementById('join-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(joinUrl)}`;
+const qrSrc = (size) => `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(joinUrl)}`;
+document.getElementById('join-qr').src = qrSrc(200);
+const qrModal = document.getElementById('qr-modal');
+document.getElementById('qr-modal-img').src = qrSrc(600);
+document.getElementById('qr-modal-url').textContent = joinUrl;
+document.getElementById('join-qr').addEventListener('click', () => qrModal.showModal());
+qrModal.addEventListener('click', () => qrModal.close());
 
 let currentRoundIndex = 0;
 let currentPatternIndex = -1;

@@ -1,5 +1,8 @@
 # 著色快手 (Speed Colors) - 極速記憶填色競技網頁遊戲
 
+🎮 **線上遊玩**：https://kukocliao.github.io/speed-colors-game/
+🕹️ 主控端 <https://kukocliao.github.io/speed-colors-game/host.html>　·　📱 玩家端 <https://kukocliao.github.io/speed-colors-game/player.html>
+
 🖍️ 一款改編自經典桌遊《著色快手 Speed Colors》的現代網頁遊戲。結合**瞬間色彩記憶**、**黑白線稿互動填色**與**極速對比競技**，打造兼具視覺美感與流暢音效體驗的記憶極限測試。
 
 ---
@@ -72,6 +75,7 @@ python3 -m http.server 8080
 **C. 部署（GitHub Pages 或 Vercel 皆可，做法同單機版）**
 3. push 到 GitHub → 用 GitHub Pages 部署整個資料夾
 4. 你開 `https://你的網址/host.html` 主控，把 `https://你的網址/player.html` 分享給其他人手機加入
+   （主控端右上角有玩家加入網址與 QR Code，點 QR 可放大投影給全班掃描）
 
 ### 已知限制
 - 純前端無帳號驗證，知道玩家網址的人都能加入、都能看到自己的分數（僅適合親友／課堂等信任場合）
