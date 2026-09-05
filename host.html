@@ -76,6 +76,12 @@
             </select>
         </div>
         <div class="flex items-center gap-1 bg-slate-900/60 px-2 py-1 rounded-xl border border-slate-700/50 text-xs">
+            <span class="font-bold text-sky-300">🎯 題數:</span>
+            <input id="setting-round-count" type="number" min="1" max="99" value="5" placeholder="不限"
+                class="w-14 bg-transparent text-sky-300 font-bold outline-none text-center border-b border-sky-400/40 focus:border-sky-300">
+            <span class="text-sky-300/70">題（留空＝不限）</span>
+        </div>
+        <div class="flex items-center gap-1 bg-slate-900/60 px-2 py-1 rounded-xl border border-slate-700/50 text-xs">
             <span class="font-bold text-emerald-300">🎨 著色:</span>
             <select id="setting-color-time" class="bg-transparent text-emerald-300 font-bold outline-none cursor-pointer">
                 <option value="15" class="bg-slate-900">15s</option>
@@ -117,6 +123,9 @@ const btnFinish = document.getElementById('btn-finish');
 const btnReset = document.getElementById('btn-reset');
 const settingMemTime = document.getElementById('setting-mem-time');
 const settingColorTime = document.getElementById('setting-color-time');
+const settingRoundCount = document.getElementById('setting-round-count');
+// ponytail: 0 = 不限題數，維持原本手動開下一關的玩法
+const totalRounds = () => parseInt(settingRoundCount.value) || 0;
 
 modeBadge.textContent = LOCAL_MODE
     ? '本機測試模式（BroadcastChannel，僅同機分頁互通）'
@@ -166,7 +175,7 @@ function pickPatternIndex() {
 function startRound() {
     clearInterval(timerInterval);
     currentRoundIndex += 1;
-    roundDisplay.textContent = currentRoundIndex;
+    roundDisplay.textContent = totalRounds() ? `${currentRoundIndex} / ${totalRounds()}` : currentRoundIndex;
     btnStart.classList.add('hidden');
     btnNext.classList.add('hidden');
     btnFinish.classList.add('hidden');
@@ -195,9 +204,13 @@ function enterColorPhase(round, pattern) {
 }
 
 function endRound(round) {
-    phaseBanner.textContent = '本關結束！開下一關繼續比賽，或直接公布成績';
+    const total = totalRounds();
+    const isLastRound = total > 0 && currentRoundIndex >= total;
+    phaseBanner.textContent = isLastRound
+        ? `🎉 已完成全部 ${total} 關！點「🏆 公布成績」結束比賽`
+        : '本關結束！開下一關繼續比賽，或直接公布成績';
     writeRoom({ status: 'ended', round });
-    btnNext.classList.remove('hidden');
+    if (!isLastRound) btnNext.classList.remove('hidden');
     btnFinish.classList.remove('hidden');
 }
 
