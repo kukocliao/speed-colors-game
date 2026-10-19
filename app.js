@@ -82,9 +82,9 @@ class SpeedColorsGame {
 
     renderPalette() {
         this.elements.paletteContainer.innerHTML = this.currentPalette.map((color, idx) => `
-            <button class="palette-btn relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-white shadow-md border-2 border-white/20 ${this.selectedColor === color.hex ? 'ring-4 ring-amber-400 scale-105' : ''}"
+            <button class="palette-btn relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-[#3A2E2A] ${this.selectedColor === color.hex ? 'ring-4 ring-[#3A2E2A] ring-offset-2 ring-offset-[#FFFBF1] scale-105' : ''}"
                     style="background-color: ${color.hex}" data-hex="${color.hex}">
-                <span class="absolute top-0.5 left-1.5 text-[9px] sm:text-[10px] opacity-75 font-mono">${idx + 1}</span>
+                <span class="absolute top-0.5 left-1 text-[9px] sm:text-[10px] leading-none px-1 py-0.5 rounded bg-[#FFFBF1] text-[#3A2E2A] font-mono">${idx + 1}</span>
             </button>
         `).join('');
 
@@ -253,7 +253,7 @@ class SpeedColorsGame {
         const percent = Math.max(0, (current / max) * 100);
         this.elements.timerBar.style.width = `${percent}%`;
         this.elements.timerText.textContent = `${current} 秒`;
-        this.elements.timerBar.className = `h-full transition-all duration-300 ${percent <= 25 ? 'bg-red-500 timer-warning' : (percent <= 50 ? 'bg-amber-500' : 'bg-emerald-500')}`;
+        this.elements.timerBar.className = `h-full transition-all duration-300 ${percent <= 25 ? 'bg-[#E5533D] timer-warning' : (percent <= 50 ? 'bg-[#F2C14E]' : 'bg-[#6CBF84]')}`;
     }
 
     updateHUD() {

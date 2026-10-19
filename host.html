@@ -9,93 +9,93 @@
 </head>
 <body class="flex flex-col items-center min-h-screen p-3 sm:p-6 select-none">
 
-<header class="w-full max-w-5xl glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-4 mb-3 sm:mb-4 flex flex-col md:flex-row items-center justify-between gap-3">
+<header class="w-full max-w-5xl paper-panel rounded-2xl sm:rounded-3xl p-3 sm:p-4 mb-3 sm:mb-4 flex flex-col md:flex-row items-center justify-between gap-3">
     <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-lg sm:text-2xl shadow-lg">🖍️</div>
+        <div class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-xl bg-[#F08A3C] border-[3px] border-[#3A2E2A] flex items-center justify-center text-xl sm:text-2xl text-[#3A2E2A] shadow-[0_3px_0_rgba(58,46,42,.2)]"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4.2L16 5l3 3L8.2 18.8z"/><path d="M14 7l3 3"/><path d="M4 20h7"/></svg></div>
         <div>
-            <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-orange-400 to-amber-500">著色快手 <span class="text-xs sm:text-sm font-bold text-slate-400 align-middle">主控端</span></h1>
-            <p id="mode-badge" class="text-[10px] sm:text-xs text-slate-400 font-medium">連線模式檢查中…</p>
+            <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight">著色快手 <span class="text-xs sm:text-sm font-bold text-[#6B5B53] align-middle">主控端</span></h1>
+            <p id="mode-badge" class="text-[10px] sm:text-xs text-[#6B5B53] font-medium">連線模式檢查中…</p>
         </div>
     </div>
     <div class="flex items-center gap-3">
         <div class="text-right">
-            <p class="text-[10px] sm:text-xs text-slate-400 font-bold">玩家加入網址（分享給大家）：</p>
-            <p id="join-url" class="text-[10px] sm:text-xs font-mono text-emerald-400 font-bold break-all"></p>
+            <p class="text-[10px] sm:text-xs text-[#6B5B53] font-bold">玩家加入網址（分享給大家）：</p>
+            <p id="join-url" class="text-[10px] sm:text-xs font-mono text-[#2F6F69] font-bold break-all"></p>
         </div>
-        <img id="join-qr" class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-slate-600/50 shadow-sm bg-white p-1 cursor-pointer" alt="掃描加入玩家端 QR Code" title="點擊放大 QR Code">
+        <img id="join-qr" class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-[#FFFBF1] p-1 cursor-pointer" alt="掃描加入玩家端 QR Code" title="點擊放大 QR Code">
     </div>
 </header>
 
 <!-- ponytail: 用原生 <dialog>，不引任何 modal 套件 -->
-<dialog id="qr-modal" class="rounded-2xl p-5 bg-white text-center backdrop:bg-black/70">
+<dialog id="qr-modal" class="rounded-2xl p-5 bg-[#FFFBF1] text-center backdrop:bg-[#3A2E2A]/70">
     <img id="qr-modal-img" class="w-[70vmin] h-[70vmin] max-w-[420px] max-h-[420px]" alt="放大的玩家端 QR Code">
-    <p id="qr-modal-url" class="mt-2 text-xs font-mono text-slate-700 break-all"></p>
-    <p class="mt-1 text-xs text-slate-400">點任一處關閉</p>
+    <p id="qr-modal-url" class="mt-2 text-xs font-mono text-[#3A2E2A] break-all"></p>
+    <p class="mt-1 text-xs text-[#6B5B53]">點任一處關閉</p>
 </dialog>
 
 <main class="w-full max-w-5xl flex flex-col lg:flex-row gap-3 sm:gap-4">
-    <div class="flex-grow glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col items-center gap-3">
-        <div id="phase-banner" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-slate-900/60 text-amber-300 border border-slate-700/50 text-center">
-            請設定題目參數，再點擊「🚀 開始遊戲」！
+    <div class="flex-grow paper-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col items-center gap-3">
+        <div id="phase-banner" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold chip text-[#9A4A0C] text-center">
+            請設定題目參數，再點擊「開始遊戲」！
         </div>
         <div class="flex items-center gap-3 text-xs sm:text-sm">
-            <div class="bg-slate-900/60 px-3 py-1 rounded-xl border border-slate-700/50">關卡 <span id="current-round" class="font-black text-amber-400 font-mono">0</span></div>
-            <div class="bg-slate-900/60 px-3 py-1 rounded-xl border border-slate-700/50">已加入 <span id="player-count" class="font-black text-emerald-400 font-mono">0</span> 人</div>
+            <div class="chip px-3 py-1 rounded-xl">關卡 <span id="current-round" class="font-black text-[#9A4A0C] font-mono">0</span></div>
+            <div class="chip px-3 py-1 rounded-xl">已加入 <span id="player-count" class="font-black text-[#2F6F69] font-mono">0</span> 人</div>
         </div>
-        <p id="pattern-title" class="text-sm sm:text-base font-bold text-slate-300"></p>
+        <p id="pattern-title" class="text-sm sm:text-base font-bold text-[#3A2E2A]"></p>
 
         <div class="card-box w-[220px] h-[290px] sm:w-[280px] sm:h-[370px] relative my-1">
             <div id="preview-container" class="w-full h-full flex items-center justify-center p-1"></div>
         </div>
 
         <div class="w-full max-w-md flex flex-col items-center gap-1">
-            <div class="w-full bg-slate-900/80 rounded-full h-3 sm:h-4 p-0.5 border border-slate-700/50 overflow-hidden relative">
-                <div id="timer-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-100" style="width:0%"></div>
+            <div class="w-full chip rounded-full h-3 sm:h-4 p-0.5 overflow-hidden relative">
+                <div id="timer-bar" class="h-full bg-[#6CBF84] rounded-full transition-all duration-100" style="width:0%"></div>
             </div>
-            <div id="timer-text" class="text-slate-300 font-mono font-bold text-xs">0 秒</div>
+            <div id="timer-text" class="text-[#3A2E2A] font-mono font-bold text-xs">0 秒</div>
         </div>
     </div>
 
-    <div class="w-full lg:w-72 glass-panel rounded-2xl sm:rounded-3xl p-4 flex flex-col">
-        <h2 class="font-black text-base sm:text-lg text-amber-300 mb-3">🏆 即時排行榜</h2>
+    <div class="w-full lg:w-72 paper-panel rounded-2xl sm:rounded-3xl p-4 flex flex-col">
+        <h2 class="font-black text-base sm:text-lg text-[#9A4A0C] mb-3"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/><path d="M12 14v4M8 20h8"/></svg> 即時排行榜</h2>
         <div id="leaderboard" class="flex flex-col gap-2 overflow-y-auto flex-grow max-h-[420px]">
-            <p class="text-sm text-slate-500 text-center py-6">尚無玩家加入</p>
+            <p class="text-sm text-[#6B5B53] text-center py-6">尚無玩家加入</p>
         </div>
     </div>
 </main>
 
-<footer class="w-full max-w-5xl glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-4 mt-3 sm:mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+<footer class="w-full max-w-5xl paper-panel rounded-2xl sm:rounded-3xl p-3 sm:p-4 mt-3 sm:mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
     <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-        <div class="flex items-center gap-1 bg-slate-900/60 px-2 py-1 rounded-xl border border-slate-700/50 text-xs">
-            <span class="font-bold text-amber-300">🧠 記憶:</span>
-            <select id="setting-mem-time" class="bg-transparent text-amber-300 font-bold outline-none cursor-pointer">
-                <option value="5" class="bg-slate-900">5s</option>
-                <option value="10" selected class="bg-slate-900">10s</option>
-                <option value="15" class="bg-slate-900">15s</option>
-                <option value="20" class="bg-slate-900">20s</option>
+        <div class="flex items-center gap-1 chip px-2 py-1 rounded-xl text-xs">
+            <span class="font-bold text-[#9A4A0C]">記憶：</span>
+            <select id="setting-mem-time" class="bg-transparent text-[#9A4A0C] font-bold outline-none cursor-pointer">
+                <option value="5">5s</option>
+                <option value="10" selected>10s</option>
+                <option value="15">15s</option>
+                <option value="20">20s</option>
             </select>
         </div>
-        <div class="flex items-center gap-1 bg-slate-900/60 px-2 py-1 rounded-xl border border-slate-700/50 text-xs">
-            <span class="font-bold text-sky-300">🎯 題數:</span>
+        <div class="flex items-center gap-1 chip px-2 py-1 rounded-xl text-xs">
+            <span class="font-bold text-[#2F5F99]">題數：</span>
             <input id="setting-round-count" type="number" min="1" max="99" value="5" placeholder="不限"
-                class="w-14 bg-transparent text-sky-300 font-bold outline-none text-center border-b border-sky-400/40 focus:border-sky-300">
-            <span class="text-sky-300/70">題（留空＝不限）</span>
+                class="w-14 bg-transparent text-[#2F5F99] font-bold outline-none text-center border-b border-[#3A2E2A] focus:border-[#3A2E2A]">
+            <span class="text-[#2F5F99]">題（留空＝不限）</span>
         </div>
-        <div class="flex items-center gap-1 bg-slate-900/60 px-2 py-1 rounded-xl border border-slate-700/50 text-xs">
-            <span class="font-bold text-emerald-300">🎨 著色:</span>
-            <select id="setting-color-time" class="bg-transparent text-emerald-300 font-bold outline-none cursor-pointer">
-                <option value="15" class="bg-slate-900">15s</option>
-                <option value="30" selected class="bg-slate-900">30s</option>
-                <option value="45" class="bg-slate-900">45s</option>
-                <option value="60" class="bg-slate-900">60s</option>
+        <div class="flex items-center gap-1 chip px-2 py-1 rounded-xl text-xs">
+            <span class="font-bold text-[#2F6F69]">著色：</span>
+            <select id="setting-color-time" class="bg-transparent text-[#2F6F69] font-bold outline-none cursor-pointer">
+                <option value="15">15s</option>
+                <option value="30" selected>30s</option>
+                <option value="45">45s</option>
+                <option value="60">60s</option>
             </select>
         </div>
     </div>
     <div class="flex items-center gap-2">
-        <button id="btn-reset" class="bg-slate-700/60 hover:bg-slate-600 text-slate-200 font-bold px-4 py-2.5 rounded-xl border border-slate-600 text-xs sm:text-sm">🔄 重設</button>
-        <button id="btn-start" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-extrabold px-6 py-2.5 sm:py-3 rounded-xl shadow-xl active:scale-95 text-sm sm:text-base">🚀 開始遊戲</button>
-        <button id="btn-next" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-6 py-2.5 sm:py-3 rounded-xl shadow-xl active:scale-95 text-sm sm:text-base">下一關 ➡️</button>
-        <button id="btn-finish" class="hidden bg-amber-600 hover:bg-amber-500 text-white font-extrabold px-6 py-2.5 sm:py-3 rounded-xl shadow-xl active:scale-95 text-sm sm:text-base">🏆 公布成績</button>
+        <button id="btn-reset" class="px-4 py-2.5 text-xs sm:text-sm rounded-xl btn btn-paper">重設</button>
+        <button id="btn-start" class="px-6 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl btn btn-orange">開始遊戲</button>
+        <button id="btn-next" class="hidden px-6 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl btn btn-green">下一關 →</button>
+        <button id="btn-finish" class="hidden px-6 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl btn btn-yellow">公布成績</button>
     </div>
 </footer>
 
@@ -161,7 +161,7 @@ btnReset.addEventListener('click', () => {
     btnStart.classList.remove('hidden');
     btnNext.classList.add('hidden');
     btnFinish.classList.add('hidden');
-    phaseBanner.textContent = '請設定題目參數，再點擊「🚀 開始遊戲」！';
+    phaseBanner.textContent = '請設定題目參數，再點擊「開始遊戲」！';
     resetRoom();
 });
 
@@ -207,7 +207,7 @@ function endRound(round) {
     const total = totalRounds();
     const isLastRound = total > 0 && currentRoundIndex >= total;
     phaseBanner.textContent = isLastRound
-        ? `🎉 已完成全部 ${total} 關！點「🏆 公布成績」結束比賽`
+        ? `🎉 已完成全部 ${total} 關！點「公布成績」結束比賽`
         : '本關結束！開下一關繼續比賽，或直接公布成績';
     writeRoom({ status: 'ended', round });
     if (!isLastRound) btnNext.classList.remove('hidden');
@@ -234,13 +234,13 @@ function renderLeaderboard(players) {
     const list = Object.values(players || {}).sort((a, b) => b.score - a.score);
     playerCountEl.textContent = list.length;
     if (list.length === 0) {
-        leaderboardEl.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">尚無玩家加入</p>';
+        leaderboardEl.innerHTML = '<p class="text-sm text-[#6B5B53] text-center py-6">尚無玩家加入</p>';
         return;
     }
     leaderboardEl.innerHTML = list.map((p, i) => `
-        <div class="flex items-center justify-between px-3 py-2 rounded-xl border ${i === 0 ? 'border-amber-400/60 bg-amber-400/10' : 'border-slate-700/50 bg-slate-900/40'}">
-            <span class="font-bold text-sm text-slate-200">${i + 1}. ${p.name}${p.streak >= 2 ? ' 🔥' : ''}</span>
-            <span class="font-mono font-black text-emerald-400">${String(p.score).padStart(4, '0')}</span>
+        <div class="chip flex items-center justify-between px-3 py-2 rounded-xl ${i === 0 ? 'bg-[#F2C14E]' : 'bg-[#F2E8CF]'}">
+            <span class="font-bold text-sm text-[#3A2E2A]">${i + 1}. ${p.name}${p.streak >= 2 ? ' 🔥' : ''}</span>
+            <span class="font-mono font-black text-[#2F6F69]">${String(p.score).padStart(4, '0')}</span>
         </div>
     `).join('');
 }

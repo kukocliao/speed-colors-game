@@ -9,62 +9,62 @@
 </head>
 <body class="flex flex-col items-center min-h-screen p-3 select-none">
 
-<header class="w-full max-w-md glass-panel rounded-2xl p-3 mb-3 text-center">
-    <h1 class="text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-orange-400 to-amber-500">🖍️ 著色快手</h1>
-    <p id="my-status" class="text-[10px] text-slate-400 font-medium mt-0.5"></p>
+<header class="w-full max-w-md paper-panel rounded-2xl p-3 mb-3 text-center">
+    <h1 class="text-lg font-extrabold tracking-tight"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4.2L16 5l3 3L8.2 18.8z"/><path d="M14 7l3 3"/><path d="M4 20h7"/></svg> 著色快手</h1>
+    <p id="my-status" class="text-[10px] text-[#6B5B53] font-medium mt-0.5"></p>
 </header>
 
 <!-- 加入畫面 -->
 <div id="gate" class="flex-grow flex flex-col items-center justify-center gap-4 p-6 w-full max-w-md">
-    <p class="text-base font-bold text-slate-300">輸入你的名字加入遊戲</p>
-    <input id="name-input" maxlength="10" placeholder="你的名字" class="glass-panel rounded-xl px-4 py-3 text-center text-lg font-bold w-64 outline-none text-white placeholder:text-slate-500">
-    <button id="join-btn" class="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-extrabold px-8 py-3 rounded-xl shadow-xl active:scale-95 text-base">加入遊戲</button>
+    <p class="text-base font-bold text-[#3A2E2A]">輸入你的名字加入遊戲</p>
+    <input id="name-input" maxlength="10" placeholder="你的名字" class="paper-panel rounded-xl px-4 py-3 text-center text-lg font-bold w-64 outline-none text-[#3A2E2A] placeholder:text-[#6B5B53]">
+    <button id="join-btn" class="px-8 py-3 text-base rounded-xl btn btn-orange">加入遊戲</button>
 </div>
 
 <!-- 遊戲畫面 -->
 <main id="game-view" class="hidden flex-grow flex flex-col items-center gap-3 w-full max-w-md">
-    <div id="phase-banner" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-900/60 text-amber-300 border border-slate-700/50 text-center">
+    <div id="phase-banner" class="px-4 py-1.5 rounded-full text-xs font-bold chip text-[#9A4A0C] text-center">
         等待主控端開始遊戲…
     </div>
 
     <div class="flex items-center gap-4 text-xs font-bold">
-        <div class="bg-slate-900/60 px-2.5 py-0.5 rounded-xl border border-slate-700/50 text-center min-w-[50px]">
-            <div class="text-[8px] text-slate-400 uppercase">得分</div>
-            <div id="my-score" class="text-sm font-black text-amber-400">0</div>
+        <div class="chip px-2.5 py-0.5 rounded-xl text-center min-w-[50px]">
+            <div class="text-[8px] text-[#6B5B53] uppercase">得分</div>
+            <div id="my-score" class="text-sm font-black text-[#9A4A0C]">0</div>
         </div>
-        <div class="bg-slate-900/60 px-2.5 py-0.5 rounded-xl border border-slate-700/50 text-center min-w-[50px]">
-            <div class="text-[8px] text-slate-400 uppercase">連勝</div>
-            <div id="my-streak" class="text-sm font-black text-emerald-400">0</div>
+        <div class="chip px-2.5 py-0.5 rounded-xl text-center min-w-[50px]">
+            <div class="text-[8px] text-[#6B5B53] uppercase">連勝</div>
+            <div id="my-streak" class="text-sm font-black text-[#2F6F69]">0</div>
         </div>
     </div>
 
     <div class="w-full max-w-xs flex flex-col items-center gap-1">
-        <div class="w-full bg-slate-900/80 rounded-full h-3 p-0.5 border border-slate-700/50 overflow-hidden relative">
-            <div id="timer-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-100" style="width:0%"></div>
+        <div class="w-full chip rounded-full h-3 p-0.5 overflow-hidden relative">
+            <div id="timer-bar" class="h-full bg-[#6CBF84] rounded-full transition-all duration-100" style="width:0%"></div>
         </div>
-        <div id="timer-text" class="text-slate-300 font-mono font-bold text-xs">0 秒</div>
+        <div id="timer-text" class="text-[#3A2E2A] font-mono font-bold text-xs">0 秒</div>
     </div>
 
-    <div class="w-full max-w-xs aspect-[3/4] glass-panel rounded-2xl p-2 flex items-center justify-center relative">
+    <div class="w-full max-w-xs aspect-[3/4] paper-panel rounded-2xl p-2 flex items-center justify-center relative">
         <div id="card-container" class="w-full h-full flex items-center justify-center"></div>
     </div>
 
     <div id="palette-container" class="hidden grid grid-cols-6 gap-1.5 sm:gap-2 w-full max-w-xs"></div>
 
-    <button id="submit-btn" class="hidden w-full max-w-xs py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl shadow-xl active:scale-95">✅ 完成著色</button>
+    <button id="submit-btn" class="hidden w-full max-w-xs py-3 rounded-xl btn btn-green">完成著色</button>
 
     <!-- 本輪結果 -->
-    <div id="round-result" class="hidden glass-panel rounded-2xl p-5 text-center w-full max-w-xs">
-        <p id="result-title" class="text-xl font-black mb-1 text-amber-300"></p>
-        <p id="result-score" class="text-base font-mono font-bold text-emerald-400 mb-1"></p>
-        <p id="result-accuracy" class="text-xs text-slate-400"></p>
-        <p id="result-rank" class="text-xs text-slate-400 font-bold mt-1"></p>
+    <div id="round-result" class="hidden paper-panel rounded-2xl p-5 text-center w-full max-w-xs">
+        <p id="result-title" class="text-xl font-black mb-1 text-[#9A4A0C]"></p>
+        <p id="result-score" class="text-base font-mono font-bold text-[#2F6F69] mb-1"></p>
+        <p id="result-accuracy" class="text-xs text-[#6B5B53]"></p>
+        <p id="result-rank" class="text-xs text-[#6B5B53] font-bold mt-1"></p>
     </div>
 
-    <div class="glass-panel rounded-2xl p-3 w-full max-w-xs">
-        <h2 class="font-black text-xs text-amber-300 mb-2">🏆 即時排行榜</h2>
+    <div class="paper-panel rounded-2xl p-3 w-full max-w-xs">
+        <h2 class="font-black text-xs text-[#9A4A0C] mb-2"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/><path d="M12 14v4M8 20h8"/></svg> 即時排行榜</h2>
         <div id="leaderboard" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
-            <p class="text-xs text-slate-500 text-center py-3">尚無玩家加入</p>
+            <p class="text-xs text-[#6B5B53] text-center py-3">尚無玩家加入</p>
         </div>
     </div>
 </main>
@@ -142,13 +142,13 @@ function join() {
 function renderLeaderboard(players) {
     const list = Object.values(players || {}).sort((a, b) => b.score - a.score);
     if (list.length === 0) {
-        leaderboardEl.innerHTML = '<p class="text-xs text-slate-500 text-center py-3">尚無玩家加入</p>';
+        leaderboardEl.innerHTML = '<p class="text-xs text-[#6B5B53] text-center py-3">尚無玩家加入</p>';
         return;
     }
     leaderboardEl.innerHTML = list.map((p, i) => `
-        <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs ${p.name === myName ? 'border-amber-400/60 bg-amber-400/10' : 'border-slate-700/50 bg-slate-900/40'}">
-            <span class="font-bold text-slate-200">${i + 1}. ${p.name}${p.streak >= 2 ? ' 🔥' : ''}</span>
-            <span class="font-mono font-black text-emerald-400">${String(p.score).padStart(4, '0')}</span>
+        <div class="chip flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs ${p.name === myName ? 'bg-[#F2C14E]' : 'bg-[#F2E8CF]'}">
+            <span class="font-bold text-[#3A2E2A]">${i + 1}. ${p.name}${p.streak >= 2 ? ' 🔥' : ''}</span>
+            <span class="font-mono font-black text-[#2F6F69]">${String(p.score).padStart(4, '0')}</span>
         </div>
     `).join('');
 }
@@ -200,9 +200,9 @@ function cardById(id) { return GAME_PATTERNS.find((p) => p.id === id); }
 
 function renderPalette() {
     paletteContainer.innerHTML = COLOR_PALETTE.map((color, idx) => `
-        <button class="palette-btn relative w-full aspect-square rounded-xl flex items-center justify-center font-bold text-white shadow-md border-2 border-white/20 ${selectedColor === color.hex ? 'ring-4 ring-amber-400 scale-105' : ''}"
+        <button class="palette-btn relative w-full aspect-square rounded-xl flex items-center justify-center font-bold text-[#3A2E2A] ${selectedColor === color.hex ? 'ring-4 ring-[#3A2E2A] ring-offset-2 ring-offset-[#FFFBF1] scale-105' : ''}"
                 style="background-color: ${color.hex}" data-hex="${color.hex}">
-            <span class="absolute top-0.5 left-1.5 text-[9px] opacity-75 font-mono">${idx + 1}</span>
+            <span class="absolute top-0.5 left-1 text-[9px] leading-none px-1 py-0.5 rounded bg-[#FFFBF1] text-[#3A2E2A] font-mono">${idx + 1}</span>
         </button>
     `).join('');
     paletteContainer.querySelectorAll('.palette-btn').forEach((btn) => {
