@@ -74,7 +74,7 @@
 <script src="firebase-config.js"></script>
 <script src="patterns.js?v=2"></script>
 <script src="audio.js?v=2"></script>
-<script src="sync.js?v=2"></script>
+<script src="sync.js?v=3"></script>
 <script>
 const gateEl = document.getElementById('gate');
 const gameViewEl = document.getElementById('game-view');
@@ -103,6 +103,7 @@ let myScore = 0;
 let myStreak = 0;
 let renderedRoundIndex = 0;
 let hasSubmitted = false;
+let answeredRoundOnJoin = 0; // 重進時資料庫記錄的已作答關卡，避免同一關重複計分
 let localTimer = null;
 let currentRound = null;
 let currentPattern = null;
@@ -120,12 +121,23 @@ window.addEventListener('keydown', (e) => {
 });
 
 function join() {
+    if (joinBtn.disabled) return; // 避免 Enter 與按鈕連按重複加入
     const name = nameInput.value.trim();
     if (!name) return alert('請輸入名字');
     myName = name;
     localStorage.setItem('speed-colors-name', name);
-    myScore = 0; myStreak = 0;
-    writePlayer(myName, { name: myName, score: 0, streak: 0, joinedAt: Date.now(), lastRound: 0 });
+    joinBtn.disabled = true;
+    readPlayer(myName).then((me) => {
+        if (me) { myScore = me.score || 0; myStreak = me.streak || 0; answeredRoundOnJoin = me.lastRound || 0; }
+        else {
+            myScore = 0; myStreak = 0;
+            writePlayer(myName, { name: myName, score: 0, streak: 0, joinedAt: Date.now(), lastRound: 0 });
+        }
+        enterGame();
+    }).catch(() => { joinBtn.disabled = false; alert('加入失敗：請檢查網路，名字也不能含 . # $ [ ] / 這些符號'); });
+}
+
+function enterGame() {
 
     gateEl.classList.add('hidden');
     gameViewEl.classList.remove('hidden');
@@ -147,7 +159,7 @@ function renderLeaderboard(players) {
     }
     leaderboardEl.innerHTML = list.map((p, i) => `
         <div class="chip flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs ${p.name === myName ? 'bg-[#F2C14E]' : 'bg-[#F2E8CF]'}">
-            <span class="font-bold text-[#3A2E2A]">${i + 1}. ${p.name}${p.streak >= 2 ? ' 🔥' : ''}</span>
+            <span class="font-bold text-[#3A2E2A]">${i + 1}. ${escapeHtml(p.name)}${p.streak >= 2 ? ' 🔥' : ''}</span>
             <span class="font-mono font-black text-[#2F6F69]">${String(p.score).padStart(4, '0')}</span>
         </div>
     `).join('');
@@ -159,7 +171,8 @@ function handleRoomChange(room) {
 
     if (round.index !== renderedRoundIndex) {
         renderedRoundIndex = round.index;
-        hasSubmitted = false;
+        hasSubmitted = round.index === answeredRoundOnJoin;
+        answeredRoundOnJoin = 0; // 只套用在重進後看到的第一關，之後照常重置
         userColorMap = {};
         selectedColor = COLOR_PALETTE[0].hex;
         currentPattern = cardById(round.patternId);

@@ -41,6 +41,18 @@ function writeRoom(partial) {
     else refRoom().update(partial);
 }
 
+// 讀取既有玩家紀錄（重新整理／斷線重進時沿用分數）；查無此人時回傳 null
+function readPlayer(name) {
+    if (LOCAL_MODE) return Promise.resolve(playersState[name] || null);
+    // 包進 Promise：名字含 . # $ [ ] / 時 Firebase 會同步丟錯，這樣呼叫端的 .catch 才接得到
+    return Promise.resolve().then(() => refPlayer(name).once('value')).then((snap) => snap.val());
+}
+
+// 玩家名稱來自資料庫，放進 innerHTML 前一律跳脫，避免被塞入腳本
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 function writePlayer(name, data) {
     playersState = { ...playersState, [name]: data };
     if (LOCAL_MODE) { bc.postMessage({ kind: 'player', name, data }); emitPlayers(); }

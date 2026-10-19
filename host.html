@@ -104,7 +104,7 @@
 <script src="firebase-config.js"></script>
 <script src="patterns.js?v=2"></script>
 <script src="audio.js?v=2"></script>
-<script src="sync.js?v=2"></script>
+<script src="sync.js?v=3"></script>
 <script>
 const previewContainer = document.getElementById('preview-container');
 const phaseBanner = document.getElementById('phase-banner');
@@ -239,7 +239,7 @@ function renderLeaderboard(players) {
     }
     leaderboardEl.innerHTML = list.map((p, i) => `
         <div class="chip flex items-center justify-between px-3 py-2 rounded-xl ${i === 0 ? 'bg-[#F2C14E]' : 'bg-[#F2E8CF]'}">
-            <span class="font-bold text-sm text-[#3A2E2A]">${i + 1}. ${p.name}${p.streak >= 2 ? ' 🔥' : ''}</span>
+            <span class="font-bold text-sm text-[#3A2E2A]">${i + 1}. ${escapeHtml(p.name)}${p.streak >= 2 ? ' 🔥' : ''}</span>
             <span class="font-mono font-black text-[#2F6F69]">${String(p.score).padStart(4, '0')}</span>
         </div>
     `).join('');
